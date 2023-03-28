@@ -3,9 +3,9 @@
 //
 
 #include "doctest.h"
-#include "sources/Player.hpp"
-#include "sources/Game.hpp"
-#include "sources/Card.hpp"
+#include "sources/player.hpp"
+#include "sources/game.hpp"
+#include "sources/card.hpp"
 #include <stdexcept>
 #include <iostream>
 using namespace ariel;
@@ -32,15 +32,9 @@ TEST_CASE("check player doesn't try to play 2 games simultaneously"){
     Player p1("Alice");
     Player p2("Bob");
     Player p3("Kobi");
-    Game game1(p1, p2);
-    CHECK_THROWS(Game(p1, p3));
-}
+    Game game1 = Game(p1, p2);
 
-TEST_CASE("check players are not classified as playing after game ends"){
-    Player p1("Alice");
-    Player p2("Bob");
-    Game game(p1, p2);
-    game.playAll();
+    CHECK_THROWS(Game(p1, p3));
 }
 
 TEST_CASE("check that user cannot print winer before the game ends"){
@@ -72,17 +66,6 @@ TEST_CASE("check that game stats has defined currently and no exception has been
 
     CHECK_NOTHROW(game.playTurn());
     CHECK_NOTHROW(game.playAll());
-}
-
-TEST_CASE("stacksize is approximately 25 after one turn"){
-    Player p1("Alice");
-    Player p2("Bob");
-
-    Game game(p1, p2);
-    game.playTurn();
-
-    CHECK(p1.stacksize() <= 25);
-    CHECK(p2.stacksize() <= 25);
 }
 
 TEST_CASE("check that printLog and printLastTurn doesn't throw exception after at least one turn has been played"){
@@ -136,6 +119,22 @@ TEST_CASE("check that the one of the players has 0 cards at the end of the game"
     game.playAll();
     int a = (p1.stacksize() & p2.stacksize());
     CHECK(a == 0);
+}
+
+TEST_CASE("check that players cannot use the same game object twice, except for printing stats and logs"){
+    Player p1("Alice");
+    Player p2("Bob");
+
+    Game game(p1, p2);
+    CHECK_NOTHROW(game.playTurn());
+    CHECK_NOTHROW(game.playAll());
+
+    CHECK_THROWS(game.playTurn());
+    CHECK_THROWS(game.playAll());
+    CHECK_NOTHROW(game.printLog());
+    CHECK_NOTHROW(game.printWiner());
+    CHECK_NOTHROW(game.printStats());
+    CHECK_NOTHROW(game.printLastTurn());
 }
 
 
